@@ -1,7 +1,7 @@
 const cardList = document.querySelector(".places__list");
 const cardTemplate = document.querySelector("#card-template").content;
 
-function createCard (initialCards, deleteCard){
+function createCards (initialCards, deleteCard){
 	initialCards.forEach(function (element){
   const card = cardTemplate.querySelector(".places__item").cloneNode(true);
   const deleteButton = card.querySelector(".card__delete-button");
@@ -15,4 +15,4 @@ function deleteCard(item) {
   item.target.parentElement.remove();
 }
 
-createCard (initialCards, deleteCard);
+createCards (initialCards, deleteCard);
