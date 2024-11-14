@@ -1,35 +1,28 @@
-import {initialCards} from "./cards.js";
-import {popupImageCard} from "./index.js";
-
-const cardList = document.querySelector(".places__list");
 const cardTemplate = document.querySelector("#card-template").content;
 
-function likeCard(evt) {
-    evt.target.classList.add("card__like-button_is-active");
+export function likeCard(likeButton) {
+  if (likeButton.classList.contains("card__like-button_is-active")){
+  likeButton.classList.remove("card__like-button_is-active");
+  }
+  else {
+    likeButton.classList.add("card__like-button_is-active");
+  }
   }
 
-function deleteCard(evt) {
-  evt.target.closest(".places__item").remove();
+export function deleteCard(card) {
+  card.remove();
 }
 
-function createCard(imageSource, textDescription, deleteCard, likeCard, popupImageCard) {
+export function createCard(cardData, cardActions) {
   const card = cardTemplate.querySelector(".places__item").cloneNode(true);
   const deleteButton = card.querySelector(".card__delete-button");
   const likeButton = card.querySelector(".card__like-button");
-  const ImageCard = card.querySelector(".card__image");
-  ImageCard.src = imageSource;
-  ImageCard.alt = `Фотография: ${textDescription}`;
-  card.querySelector(".card__title").textContent = textDescription;
-  deleteButton.addEventListener("click", deleteCard);
-  likeButton.addEventListener("click", likeCard);
-  ImageCard.addEventListener("click", popupImageCard);
+  const imageCard = card.querySelector(".card__image");
+  imageCard.src = cardData.link;
+  imageCard.alt = `Фотография: ${cardData.name}`;
+  card.querySelector(".card__title").textContent = cardData.name;
+  deleteButton.addEventListener("click", () => cardActions.deleteCard(card));
+  likeButton.addEventListener("click", () => cardActions.likeCard(likeButton));
+  imageCard.addEventListener("click", () => cardActions.popupImageCard(cardData));
   return card;
 }
-
-export function renderCard(imageSource, textDescription) {
-  cardList.prepend(createCard(imageSource, textDescription, deleteCard, likeCard, popupImageCard));
-}
-
-initialCards.reverse().forEach(function (element) {
-  renderCard(element.link, element.name);
-});

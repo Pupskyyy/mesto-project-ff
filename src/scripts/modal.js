@@ -1,18 +1,16 @@
-import {handleEscClose, handleOverlayClick} from "./index.js";
-
-export let currentPopup = null;
-
-export function openPopup(popup) {
-  currentPopup = popup;
+export function openModal(popup) {
   popup.classList.add("popup_is-opened");
-  document.addEventListener("click", handleOverlayClick);
   document.addEventListener("keydown", handleEscClose);
 }
 
-export function closePopup(currentPopup) {
-    currentPopup.classList.remove("popup_is-opened");
-    document.removeEventListener("click", handleOverlayClick);
+export function closeModal(popup) {
+    popup.classList.remove("popup_is-opened");
     document.removeEventListener("keydown", handleEscClose);
-    currentPopup = null;
 }
 
+function handleEscClose(evt) {
+  if (evt.key === "Escape") {
+    const openedPopup = document.querySelector('.popup_is-opened');
+    closeModal(openedPopup); 
+  }
+}
