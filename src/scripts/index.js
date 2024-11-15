@@ -24,15 +24,17 @@ const popupImageURL = document.querySelector(".popup__image");
 const popupImageCaption = document.querySelector(".popup__caption");
 
 const cardActions = {
-  popupImageCard(cardData) {
-    popupImageURL.src = cardData.link;
-    popupImageURL.alt = `Фотография: ${cardData.name}`;
-    popupImageCaption.textContent = cardData.name;
-    openModal(popupImage);
-  },
+  popupImageCard,
   likeCard,
   deleteCard
 };
+
+function popupImageCard(cardLink, cardName) {
+  popupImageURL.src = cardLink;
+  popupImageURL.alt = `Фотография: ${cardName}`;
+  popupImageCaption.textContent = cardName;
+  openModal(popupImage);
+}
 
 function handleOverlayClick(evt, popup) {
   if (evt.target === popup || evt.target === popup.querySelector(".popup__close")) {
@@ -71,8 +73,7 @@ function handlePopupAddCardSubmit(evt) {
   };
   renderCard(createCardData, cardActions);
   closeModal(popupCreateNewCard);
-  popupCreateNewCardLink.value = "";
-  popupCreateNewCardName.value = "";
+  popupCreateNewCardForm.reset();
 }
 
 popupCreateNewCardForm.addEventListener('submit', handlePopupAddCardSubmit); 

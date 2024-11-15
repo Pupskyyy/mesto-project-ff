@@ -1,12 +1,7 @@
 const cardTemplate = document.querySelector("#card-template").content;
 
 export function likeCard(likeButton) {
-  if (likeButton.classList.contains("card__like-button_is-active")){
-  likeButton.classList.remove("card__like-button_is-active");
-  }
-  else {
-    likeButton.classList.add("card__like-button_is-active");
-  }
+  likeButton.classList.toggle("card__like-button_is-active");
   }
 
 export function deleteCard(card) {
@@ -23,6 +18,6 @@ export function createCard(cardData, cardActions) {
   card.querySelector(".card__title").textContent = cardData.name;
   deleteButton.addEventListener("click", () => cardActions.deleteCard(card));
   likeButton.addEventListener("click", () => cardActions.likeCard(likeButton));
-  imageCard.addEventListener("click", () => cardActions.popupImageCard(cardData));
+  imageCard.addEventListener("click", () => cardActions.popupImageCard(cardData.link, cardData.name));
   return card;
 }
