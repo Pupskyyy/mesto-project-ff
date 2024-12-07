@@ -4,7 +4,7 @@ export function deleteCard(card) {
   card.remove();
 }
 
-export function createCard(cardData, cardActions) {
+export function createCard(cardData, cardActions, userId) {
   const card = cardTemplate.querySelector(".places__item").cloneNode(true);
   const deleteButton = card.querySelector(".card__delete-button");
   const likeButton = card.querySelector(".card__like-button");
@@ -15,18 +15,16 @@ export function createCard(cardData, cardActions) {
   imageCard.alt = `Фотография: ${cardData.name}`;
   cardLikesNumber.textContent = cardData.likes.length;
   card.querySelector(".card__title").textContent = cardData.name;
-  deleteButton.addEventListener("click", () => cardActions.popupDelete(card, cardId));
   likeButton.addEventListener("click", () => cardActions.likeCard(likeButton, cardLikesNumber, cardId));
-  imageCard.addEventListener("click", () => cardActions.popupImageCard(cardData.link, cardData.name));
-  if (cardData.owner._id !== '711ebd9e5cdf0338097fb87c') {
+  imageCard.addEventListener("click", () => cardActions.openPopupImageCard(cardData.link, cardData.name));
+  if (cardData.owner._id !== userId) {
     deleteButton.style.display = 'none';
+  }
+  else {
+    deleteButton.addEventListener("click", () => cardActions.openPopupDelete(card, cardId));
   };
-  cardData.likes.some(like => {
-    if (like._id === '711ebd9e5cdf0338097fb87c') {
-        likeButton.classList.toggle("card__like-button_is-active");
-        return true;
-    }
-    return false;
-});
+  if(cardData.likes.some(like => like._id === userId)){ 
+    likeButton.classList.add("card__like-button_is-active"); 
+};
   return card;
 }

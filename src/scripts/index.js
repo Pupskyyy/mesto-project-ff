@@ -40,43 +40,47 @@ const popupDeleteCard = document.querySelector(".popup_type_delete_card");
 const popupDeleteCardForm = document.forms['delete-card-button'];
 const popupDeleteCardSubmitButton = popupDeleteCardForm.querySelector('[type="submit"]');
 const popupDeleteCardSubmitButtonText = popupDeleteCardSubmitButton.textContent;
+let cardToDelete;
+let cardToDeleteId;
+
+let userId; 
 
 Promise.all([getInitialUser(), getInitialCards()])
-.then(([userData, cardsData]) => {
-  profileTitle.textContent = userData.name;
-  profileDescription.textContent = userData.about;
-  profileImage.style.backgroundImage = `url('${userData.avatar}')`;
-  cardsData.reverse().forEach((card) => {
-    renderCard(card, cardActions);
+  .then(([userData, cardsData]) => {
+    userId = userData._id;
+    profileTitle.textContent = userData.name;
+    profileDescription.textContent = userData.about;
+    profileImage.style.backgroundImage = `url('${userData.avatar}')`;
+    cardsData.reverse().forEach((card) => {
+      renderCard(card, cardActions, userId); 
+    });
+  })
+  .catch((err) => {
+    console.error(err);
   });
-})
-.catch((err) => {
-  console.log(err);
-});
 
 const cardActions = {
-  popupImageCard,
+  openPopupImageCard,
   likeCard,
   deleteCard,
-  popupDelete
+  openPopupDelete
 };
 
 function likeCard(likeButton, cardLikesNumber, cardId) {
-  if (!likeButton.classList.contains("card__like-button_is-active")){
-  likeCardServer(cardId)
-  .then((res) => {
-    likeButton.classList.toggle("card__like-button_is-active");
-    cardLikesNumber.textContent = res.likes.length;
-  });
-  }
-  else {
-    deleteLikeCardServer(cardId)
+  const likeMethod = likeButton.classList.contains("card__like-button_is-active") 
+    ? deleteLikeCardServer 
+    : likeCardServer;
+
+  likeMethod(cardId)
     .then((res) => {
       likeButton.classList.toggle("card__like-button_is-active");
       cardLikesNumber.textContent = res.likes.length;
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("Не удалось обновить лайк. Попробуйте позже.");
     });
-  }
-  }
+}
 
 const validationSettings = {
   formSelector: '.popup__form',
@@ -89,24 +93,19 @@ const validationSettings = {
 
 enableValidation(validationSettings);
 
-function popupImageCard(cardLink, cardName) {
+function openPopupImageCard(cardLink, cardName) {
   popupImageURL.src = cardLink;
   popupImageURL.alt = `Фотография: ${cardName}`;
   popupImageCaption.textContent = cardName;
   openModal(popupImage);
 }
 
-function handleOverlayClick(evt, popup) {
-  if (evt.target === popup || evt.target === popup.querySelector(".popup__close")) {
-    closeModal(popup);
-  }
+function handleOverlayClick(evt) {
+  if (evt.target === evt.currentTarget || evt.target.classList.contains('popup__close')) { 
+  closeModal(evt.currentTarget); 
+} 
 }
-
-popupProfileEdit.addEventListener("click", (evt) => handleOverlayClick(evt, popupProfileEdit));
-popupCreateNewCard.addEventListener("click", (evt) => handleOverlayClick(evt, popupCreateNewCard));
-popupImage.addEventListener("click", (evt) => handleOverlayClick(evt, popupImage));
-popupEditProfileImage.addEventListener("click", (evt) => handleOverlayClick(evt, popupEditProfileImage));
-popupDeleteCard.addEventListener("click", (evt) => handleOverlayClick(evt, popupDeleteCard));
+[popupProfileEdit, popupCreateNewCard, popupImage, popupEditProfileImage, popupDeleteCard].forEach(popup => popup.addEventListener("click", handleOverlayClick));
 
 
 profileEditButton.addEventListener("click", () => {
@@ -152,7 +151,7 @@ function handlePopupAddCardSubmit(evt) {
   };
   patchInitialCards(createCardData)
     .then((res) => {
-      renderCard(res, cardActions);
+      renderCard(res, cardActions, userId);
       closeModal(popupCreateNewCard);
       popupCreateNewCardForm.reset();
       clearValidation(popupCreateNewCardForm, validationSettings);
@@ -197,35 +196,34 @@ function handlepopupEditProfileImageSubmit(evt) {
 
 popupEditProfileImageForm.addEventListener('submit', handlepopupEditProfileImageSubmit);
 
-function popupDelete(card, cardId) {
-  openModal(popupDeleteCard);
-  window.currentCard = card;
-  window.currentCardId = cardId;
-}
+function openPopupDelete(card, cardId) {
+    cardToDelete = card;
+    cardToDeleteId = cardId;
+    openModal(popupDeleteCard);
+  }
 
-function handlePopupDeleteCardSubmit(evt) {
-  evt.preventDefault();
-  const card = window.currentCard;
-  const cardId = window.currentCardId;
-  popupDeleteCardSubmitButton.textContent = 'Удаление...';
-  popupDeleteCardSubmitButton.disabled = true;
-  deleteCardServer(cardId)
-  .then(() => {
-    deleteCard(card, cardId);
-    closeModal(popupDeleteCard);
-  })
-  .catch((err) => {
-    console.error(err);
-    alert('Не удалось удалить карту. Попробуйте позже.');
-  })
-  .finally(() => {
-    popupDeleteCardSubmitButton.textContent = popupDeleteCardSubmitButtonText;
-    popupDeleteCardSubmitButton.disabled = false;
-  });
-}
+  function handlePopupDeleteCardSubmit(evt) {
+    evt.preventDefault();
+    popupDeleteCardSubmitButton.textContent = 'Удаление...';
+    popupDeleteCardSubmitButton.disabled = true;
+  
+    deleteCardServer(cardToDeleteId)
+      .then(() => {
+        deleteCard(cardToDelete);
+        closeModal(popupDeleteCard);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('Не удалось удалить карточку. Попробуйте позже.');
+      })
+      .finally(() => {
+        popupDeleteCardSubmitButton.textContent = popupDeleteCardSubmitButtonText;
+        popupDeleteCardSubmitButton.disabled = false;
+      });
+  }
 
 popupDeleteCardForm.addEventListener('submit', handlePopupDeleteCardSubmit);
 
-function renderCard(cardData, cardActions) {
-  cardList.prepend(createCard(cardData, cardActions));
+function renderCard(cardData, cardActions, userId) {
+  cardList.prepend(createCard(cardData, cardActions, userId));
 }
