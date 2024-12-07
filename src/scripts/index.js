@@ -45,7 +45,7 @@ Promise.all([getInitialUser(), getInitialCards()])
   profileTitle.textContent = userData.name;
   profileDescription.textContent = userData.about;
   profileImage.style.backgroundImage = `url('${userData.avatar}')`;
-  cardsData.forEach((card) => {
+  cardsData.reverse().forEach((card) => {
     renderCard(card, cardActions);
   });
 })
@@ -179,10 +179,6 @@ function handlepopupEditProfileImageSubmit(evt) {
 
 popupEditProfileImageForm.addEventListener('submit', handlepopupEditProfileImageSubmit);
 
-function renderCard(cardData, cardActions) {
-  cardList.prepend(createCard(cardData, cardActions));
-}
-
 function popupDelete(card, cardId) {
   openModal(popupDeleteCard);
   popupDeleteCardForm.addEventListener('submit', (evt) => handlePopupDeleteCardSubmit(evt, card, cardId));
@@ -205,4 +201,8 @@ function handlePopupDeleteCardSubmit(evt, card, cardId) {
     popupDeleteCardSubmitButton.textContent = popupDeleteCardSubmitButtonText;
     popupDeleteCardSubmitButton.disabled = false;
   });
+}
+
+function renderCard(cardData, cardActions) {
+  cardList.prepend(createCard(cardData, cardActions));
 }
