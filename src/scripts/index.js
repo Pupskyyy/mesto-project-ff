@@ -3,6 +3,7 @@ import {openModal, closeModal} from "./modal.js";
 import {createCard, deleteCard} from "./card.js";
 import {enableValidation, clearValidation} from "./validation.js";
 import {patchInitialCards, patchProfileData, patchProfileImage, getInitialUser, getInitialCards, deleteCardServer, likeCardServer, deleteLikeCardServer} from "./api.js";
+
 const cardList = document.querySelector(".places__list");
 
 const popupProfileEdit = document.querySelector(".popup_type_edit");
@@ -76,7 +77,6 @@ function likeCard(likeButton, cardLikesNumber, cardId) {
     });
   }
   }
-
 
 const validationSettings = {
   formSelector: '.popup__form',
@@ -199,14 +199,17 @@ popupEditProfileImageForm.addEventListener('submit', handlepopupEditProfileImage
 
 function popupDelete(card, cardId) {
   openModal(popupDeleteCard);
-  popupDeleteCardForm.addEventListener('submit', (evt) => handlePopupDeleteCardSubmit(evt, card, cardId));
+  window.currentCard = card;
+  window.currentCardId = cardId;
 }
 
-function handlePopupDeleteCardSubmit(evt, card, cardId) {
+function handlePopupDeleteCardSubmit(evt) {
   evt.preventDefault();
+  const card = window.currentCard;
+  const cardId = window.currentCardId;
   popupDeleteCardSubmitButton.textContent = 'Удаление...';
   popupDeleteCardSubmitButton.disabled = true;
-  deleteCardServer(cardId, card)
+  deleteCardServer(cardId)
   .then(() => {
     deleteCard(card, cardId);
     closeModal(popupDeleteCard);
@@ -220,6 +223,8 @@ function handlePopupDeleteCardSubmit(evt, card, cardId) {
     popupDeleteCardSubmitButton.disabled = false;
   });
 }
+
+popupDeleteCardForm.addEventListener('submit', handlePopupDeleteCardSubmit);
 
 function renderCard(cardData, cardActions) {
   cardList.prepend(createCard(cardData, cardActions));
