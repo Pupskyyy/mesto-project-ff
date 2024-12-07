@@ -1,22 +1,4 @@
-import {likeCardServer, delteLikeCardServer} from "./api";
 const cardTemplate = document.querySelector("#card-template").content;
-
-export function likeCard(likeButton, cardLikesNumber, cardId) {
-  if (!likeButton.classList.contains("card__like-button_is-active")){
-  likeCardServer(cardId)
-  .then((res) => {
-    likeButton.classList.toggle("card__like-button_is-active");
-    cardLikesNumber.textContent = res.likes.length;
-  });
-  }
-  else {
-    delteLikeCardServer(cardId)
-    .then((res) => {
-      likeButton.classList.toggle("card__like-button_is-active");
-      cardLikesNumber.textContent = res.likes.length;
-    });
-  }
-  }
 
 export function deleteCard(card) {
   card.remove();

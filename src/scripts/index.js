@@ -1,8 +1,8 @@
 import '../pages/index.css';
 import {openModal, closeModal} from "./modal.js";
-import {createCard, likeCard, deleteCard} from "./card.js";
+import {createCard, deleteCard} from "./card.js";
 import {enableValidation, clearValidation} from "./validation.js";
-import {patchInitialCards, patchProfileData, patchProfileImage, getInitialUser, getInitialCards, deleteCardServer} from "./api.js";
+import {patchInitialCards, patchProfileData, patchProfileImage, getInitialUser, getInitialCards, deleteCardServer, likeCardServer, deleteLikeCardServer} from "./api.js";
 const cardList = document.querySelector(".places__list");
 
 const popupProfileEdit = document.querySelector(".popup_type_edit");
@@ -59,6 +59,24 @@ const cardActions = {
   deleteCard,
   popupDelete
 };
+
+function likeCard(likeButton, cardLikesNumber, cardId) {
+  if (!likeButton.classList.contains("card__like-button_is-active")){
+  likeCardServer(cardId)
+  .then((res) => {
+    likeButton.classList.toggle("card__like-button_is-active");
+    cardLikesNumber.textContent = res.likes.length;
+  });
+  }
+  else {
+    deleteLikeCardServer(cardId)
+    .then((res) => {
+      likeButton.classList.toggle("card__like-button_is-active");
+      cardLikesNumber.textContent = res.likes.length;
+    });
+  }
+  }
+
 
 const validationSettings = {
   formSelector: '.popup__form',
